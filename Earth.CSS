@@ -9,20 +9,50 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('images/earth_surface.jpg');
+    background-color: transparent; /* earth.surface will be covered by middle_cover */
     background-size: cover;
-    z-index: 1;
+    z-index: 0; /* put beneath the middle cover */
 }
 
-#clouds {
+/* centre cover that matches requested colour (#E3E3E3) */
+#middle_cover {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    transform: none;
+    width: 100%;           /* full-screen */
     height: 100%;
-    background-image: url('images/earth_clouds.png');
-    background-size: cover;
-    opacity: 1;
-    transition: opacity 0.2s;
-    z-index: 2;
+    background-color: #E3E3E3;
+    z-index: 1;            /* sits above earth and below clouds (clouds z-index:2) */
+    pointer-events: none;
+    transition: opacity 200ms ease; /* smooth fade when scrolling */
 }
+
+/* ensure clouds remain on top */
+.cloud {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 55%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 2;           /* above middle cover */
+    opacity: 1;
+    transition: opacity 0.2s, transform 0.45s ease;
+}
+
+#cloud_left {
+    background-image: url("images/cloud_left.PNG");
+    left: 0;
+    background-position: left center;
+    transform: translateX(0%);
+}
+
+#cloud_right {
+    background-image: url("images/cloud_right.PNG");
+    right: 0;
+    background-position: right center;
+    transform: translateX(0%);
+}
+

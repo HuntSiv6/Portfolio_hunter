@@ -86,64 +86,155 @@ document.addEventListener("DOMContentLoaded", () => {
     earth.style.cursor = "pointer";
 
     earth.addEventListener("click", () => {
-
-        // Stop animations so Earth stays still
+        // freeze animations
+        const orbitComputed = getComputedStyle(orbit1).transform;
+        if (orbitComputed && orbitComputed !== "none") orbit1.style.transform = orbitComputed;
         orbit1.style.animation = "none";
+
+        const earthComputed = getComputedStyle(earth).transform;
+        if (earthComputed && earthComputed !== "none") earth.style.transform = earthComputed;
         earth.style.animation = "none";
 
-        // Get Earth position
+        // earth position and offsets
         const rect = earth.getBoundingClientRect();
-
         const earthCenterX = rect.left + rect.width / 2;
         const earthCenterY = rect.top + rect.height / 2;
-
         const screenCenterX = window.innerWidth / 2;
         const screenCenterY = window.innerHeight / 2;
-
-        // Amount needed to center Earth
         const offsetX = screenCenterX - earthCenterX;
         const offsetY = screenCenterY - earthCenterY;
 
-        // Apply translation + zoom
-        solar.style.transition = "transform 1.5s ease";
-        solar.style.transform = `
-            translate(${offsetX}px, ${offsetY}px)
-            scale(4)
-        `;
+        // set transform-origin to the earth's center (local coords)
+        const solarRect = solar.getBoundingClientRect();
+        const originX = earthCenterX - solarRect.left;
+        const originY = earthCenterY - solarRect.top;
+        solar.style.transformOrigin = `${originX}px ${originY}px`;
 
+        // compute scale so earth engulfs screen
+        const requiredScaleX = window.innerWidth / rect.width;
+        const requiredScaleY = window.innerHeight / rect.height;
+        const requiredScale = Math.max(requiredScaleX, requiredScaleY);
+        const extraZoomMultiplier = 3; // stronger zoom
+        const targetScale = requiredScale * extraZoomMultiplier;
+
+        // create cloud overlays + middle cover if missing (start off-screen / invisible)
+        function ensureCloudOverlay() {
+            if (document.getElementById('transition_cloud_left')) return;
+
+            const left = document.createElement('div');
+            left.id = 'transition_cloud_left';
+            Object.assign(left.style, {
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                width: '55%',
+                height: '100%',
+                backgroundImage: 'url("images/cloud_left.PNG")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'left center',
+                pointerEvents: 'none',
+                opacity: '0',
+                transform: 'translateX(-110%)',
+                zIndex: 9999
+            });
+
+            const right = document.createElement('div');
+            right.id = 'transition_cloud_right';
+            Object.assign(right.style, {
+                position: 'fixed',
+                top: '0',
+                right: '0',
+                width: '55%',
+                height: '100%',
+                backgroundImage: 'url("images/cloud_right.PNG")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'right center',
+                pointerEvents: 'none',
+                opacity: '0',
+                transform: 'translateX(110%)',
+                zIndex: 9999
+            });
+
+            // middle cover (full-screen and behind clouds)
+            const mid = document.createElement('div');
+            mid.id = 'transition_middle_cover';
+            Object.assign(mid.style, {
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                transform: 'none',
+                width: '100%',            
+                height: '100%',
+                backgroundColor: '#E3E3E3',
+                pointerEvents: 'none',
+                opacity: '0',
+                zIndex: 9998             // below clouds
+            });
+
+            document.body.appendChild(mid);
+            document.body.appendChild(left);
+            document.body.appendChild(right);
+        }
+
+        ensureCloudOverlay();
+        const cloudL = document.getElementById('transition_cloud_left');
+        const cloudR = document.getElementById('transition_cloud_right');
+        const midCover = document.getElementById('transition_middle_cover');
+
+        const durationMs = 2000; // full zoom duration
+        const easing = 'cubic-bezier(.22,.9,.32,1)';
+
+        //clouds + middle cover finish moving quicker than the full zoom.
+        // They will complete at ~60% of the zoom so the covers are already at full opacity
+        const finishRatio = 0.6;
+        const cloudFadeDuration = Math.round(durationMs * finishRatio); 
+        const cloudTransformDuration = cloudFadeDuration; // move-in matches fade completion
+
+        // ensure starting state (offscreen + invisible)
+        cloudL.style.opacity = '0';
+        cloudR.style.opacity = '0';
+        cloudL.style.transform = 'translateX(-110%)';
+        cloudR.style.transform = 'translateX(110%)';
+        if (midCover) {
+            midCover.style.opacity = '0';
+        }
+
+        // force reflow so transitions take
+        void cloudL.offsetWidth;
+
+        // set transitions:
+        // clouds: opacity finishes sooner than the full zoom, transform also finishes sooner
+        cloudL.style.transition = `opacity ${cloudFadeDuration}ms ease, transform ${cloudTransformDuration}ms ${easing}`;
+        cloudR.style.transition = `opacity ${cloudFadeDuration}ms ease, transform ${cloudTransformDuration}ms ${easing}`;
+
+        // middle cover fades in 
+        if (midCover) {
+            midCover.style.transition = `opacity ${cloudFadeDuration}ms ease`;
+        }
+
+        // start animations immediately on click: clouds move inward and fade; middle cover fades in
+        cloudL.style.transform = 'translateX(0)';
+        cloudR.style.transform = 'translateX(0)';
+        cloudL.style.opacity = '1';
+        cloudR.style.opacity = '1';
+        if (midCover) midCover.style.opacity = '1';
+
+        // zoom (translate + scale) runs full duration so clouds/mid finish earlier
+        solar.style.transition = `transform ${durationMs}ms ${easing}`;
+        solar.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${targetScale})`;
+
+        // navigate when zoom ends (fallback timeout)
+        const onEnd = (e) => {
+            if (e.propertyName === 'transform') {
+                solar.removeEventListener('transitionend', onEnd);
+                window.location.href = 'Earth.html';
+            }
+        };
+        solar.addEventListener('transitionend', onEnd);
         setTimeout(() => {
-            window.location.href = "earth.html";
-        }, 1500);
+            solar.removeEventListener('transitionend', onEnd);
+            window.location.href = 'Earth.html';
+        }, durationMs + 300);
     });
-});
-earth.addEventListener("click", () => {
-    // Stop orbit animations
-    orbit1.style.animation = "none";
-    earth.style.animation = "none";
-
-    const solarRect = solar.getBoundingClientRect();
-    const earthRect = earth.getBoundingClientRect();
-
-    // Center of Earth relative to solarSystem container
-    const earthCenterX = earthRect.left + earthRect.width / 2 - solarRect.left;
-    const earthCenterY = earthRect.top + earthRect.height / 2 - solarRect.top;
-
-    const containerCenterX = solarRect.width / 2;
-    const containerCenterY = solarRect.height / 2;
-
-    const offsetX = containerCenterX - earthCenterX;
-    const offsetY = containerCenterY - earthCenterY;
-
-    // Make transform origin center so scaling zooms properly
-    solar.style.transformOrigin = "center center";
-
-    // Apply translation + zoom
-    solar.style.transition = "transform 1.5s ease";
-    solar.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(4)`;
-
-    // Redirect after animation
-    setTimeout(() => {
-        window.location.href = "earth.html";
-    }, 1500);
 });
 
