@@ -1,0 +1,143 @@
+h1 {
+    text-align: center;
+}
+.title {
+    font-family: 'Orbitron', sans-serif;
+    color: #ffffff;
+    font-size: 20px;
+    text-align: center;
+    margin-top: 40px;
+    letter-spacing: 2px;
+}
+
+.glow {
+    text-align: center;
+    animation: pulse 3s ease-in-out infinite;
+    color: #b5d7ff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    display: block; 
+    margin-top: 10px;
+    text-shadow:
+        0 0 4px #89b2ff,
+        0 0 8px #89b2ff,
+        0 0 12px #3b5cff,
+        0 0 20px #3550ff;
+}
+
+@keyframes pulse {
+    0% { text-shadow: 0 0 10px #4cc9f0, 0 0 20px #4cc9f0, 0 0 30px #4cc9f0; }
+    50% { text-shadow: 0 0 30px #4cc9f0, 0 0 60px #4cc9f0, 0 0 90px #4cc9f0; }
+    100% { text-shadow: 0 0 10px #4cc9f0, 0 0 20px #4cc9f0, 0 0 30px #4cc9f0; }
+}
+
+body {     
+    margin: 0;                     
+    height: 100vh;                
+    background-image: url('images/space.png'); 
+    background-size: cover;        
+    background-position: center;   
+    background-repeat: no-repeat;  
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+.solarSystem {
+    position: relative;
+    padding-top: 300px;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+.sun {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffd700, #ff8800);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    font-size: 18px;
+    padding: 10px;
+    box-shadow: 0 0 40px #ffae00;
+    z-index: 2;
+}
+
+.orbit {
+    z-index: 2;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    
+}
+
+.orbit1 {
+    width: 300px;
+    height: 300px;
+    animation: spin 16s linear infinite;
+}
+
+.orbit2 {
+    width: 450px;
+    height: 450px;
+    animation: spin 20s linear infinite;
+}
+.orbit3 {
+    width: 600px;
+    height: 600px;
+    animation: spin 25s linear infinite;
+}
+
+.planet {
+    animation: planet-spin 20s linear infinite;
+    z-index: 1;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    position: absolute;
+    top: 60%;
+    left: 0;
+    transform: translateY(-50%);
+}
+
+.Earth {
+    background: url('images/earth.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.Mars {
+    background: #d14cff; 
+}
+
+.Jupiter {
+    background-color: #ffb347;
+}
+
+@keyframes spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes planet-spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+#starCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+}
