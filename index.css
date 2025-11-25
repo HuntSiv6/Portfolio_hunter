@@ -139,13 +139,13 @@ body {
     to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 #starCanvas {
-    position: fixed;
+    position: fixed;   /* keep canvas covering the viewport even when scrolling */
     top: 0;
     left: 0;
-    width: 100vw;
-    height: auto;
-    z-index: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
+    z-index: 0;        /* adjust if you need it above/below other elements */
 }
 
 .orbit1, .orbit2, .orbit3 {
