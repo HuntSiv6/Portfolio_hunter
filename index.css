@@ -43,6 +43,9 @@ body {
 }
 
 .solarSystem {
+    transform-origin: center center;
+    will-change: transform; 
+    z-index: 5;
     position: relative;
     padding-top: 300px;
     width: 100vw;
@@ -70,6 +73,7 @@ body {
 }
 
 .orbit {
+    pointer-events: none;
     z-index: 2;
     position: absolute;
     top: 50%;
@@ -98,8 +102,9 @@ body {
 }
 
 .planet {
+    pointer-events: auto;
     animation: planet-spin 20s linear infinite;
-    z-index: 1;
+    z-index: 10;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -110,6 +115,7 @@ body {
 }
 
 .Earth {
+    transform-origin: center center;
     background: url('images/earth.png');
     background-size: cover;
     background-position: center;
@@ -137,7 +143,11 @@ body {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: auto;
     z-index: 0;
     pointer-events: none;
+}
+
+.orbit1, .orbit2, .orbit3 {
+    transform-style: preserve-3d;
 }

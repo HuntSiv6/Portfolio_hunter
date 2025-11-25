@@ -1,0 +1,28 @@
+body, html {
+    margin: 0;
+    height: 200vh; /* allows scrolling */
+}
+
+#earth {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('images/earth_surface.jpg');
+    background-size: cover;
+    z-index: 1;
+}
+
+#clouds {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('images/earth_clouds.png');
+    background-size: cover;
+    opacity: 1;
+    transition: opacity 0.2s;
+    z-index: 2;
+}
