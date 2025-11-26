@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const originY = earthCenterY - solarRect.top;
         solar.style.transformOrigin = `${originX}px ${originY}px`;
 
-        // compute target scale (same logic as Earth)
+        // compute target scale 
         const requiredScaleX = window.innerWidth / rect.width;
         const requiredScaleY = window.innerHeight / rect.height;
         const requiredScale = Math.max(requiredScaleX, requiredScaleY);
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const cloudR = document.getElementById('transition_cloud_right');
         const midCover = document.getElementById('transition_middle_cover');
 
-        // update middle cover color for this planet
+        
         if (midCover) {
             midCover.style.backgroundColor = middleCoverColor;
         }
@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // force reflow
         void cloudL.offsetWidth;
 
-        // set transitions (clouds finish sooner than full zoom)
+        // set transitions
         cloudL.style.transition = `opacity ${cloudFadeDuration}ms ease, transform ${cloudFadeDuration}ms ${easing}`;
         cloudR.style.transition = `opacity ${cloudFadeDuration}ms ease, transform ${cloudFadeDuration}ms ${easing}`;
         if (midCover) midCover.style.transition = `opacity ${cloudFadeDuration}ms ease`;
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, durationMs + 300);
     }
 
-    // attach for Earth, Mars, Jupiter
+    // set up planet click handlers
     const earth = document.querySelector('.Earth');
     const mars = document.querySelector('.Mars');
     const jupiter = document.querySelector('.Jupiter');
