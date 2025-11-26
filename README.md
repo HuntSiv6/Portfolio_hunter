@@ -39,9 +39,9 @@ This project demonstrates my skills in **HTML**, **CSS animations**, **JavaScrip
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/HuntSiv6/Portofolio_hunter.git
+   `git clone https://github.com/HuntSiv6/Portofolio_hunter.git`
 
 2. navigate into folder:
-   cd Portofolio_hunter
+   `cd Portofolio_hunter`
 
 3. Launch index.html, no further set-up required as of now.
