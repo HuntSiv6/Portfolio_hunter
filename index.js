@@ -80,24 +80,22 @@ function animateStars() {
 animateStars();
 
 document.addEventListener("DOMContentLoaded", () => {
-    const solar = document.querySelector(".solarSystem");
-    const earth = document.querySelector(".Earth");
-    const orbit1 = document.querySelector(".orbit1");
 
-    earth.style.cursor = "pointer";
+    // helper: freeze animations on orbits/planets
+    function freezeScene() {
+        document.querySelectorAll('.orbit, .planet').forEach(el => {
+            const comp = getComputedStyle(el).transform;
+            if (comp && comp !== 'none') el.style.transform = comp;
+            el.style.animation = 'none';
+        });
+    }
 
-    earth.addEventListener("click", () => {
-        // freeze animations
-        const orbitComputed = getComputedStyle(orbit1).transform;
-        if (orbitComputed && orbitComputed !== "none") orbit1.style.transform = orbitComputed;
-        orbit1.style.animation = "none";
+    // generic zoom + cloud transition for a planet element
+    function triggerPlanetZoom(planetEl, leftImgUrl, rightImgUrl, middleCoverColor, targetUrl) {
+        freezeScene();
 
-        const earthComputed = getComputedStyle(earth).transform;
-        if (earthComputed && earthComputed !== "none") earth.style.transform = earthComputed;
-        earth.style.animation = "none";
-
-        // earth position and offsets
-        const rect = earth.getBoundingClientRect();
+        const solar = document.querySelector('.solarSystem');
+        const rect = planetEl.getBoundingClientRect();
         const earthCenterX = rect.left + rect.width / 2;
         const earthCenterY = rect.top + rect.height / 2;
         const screenCenterX = window.innerWidth / 2;
@@ -105,137 +103,132 @@ document.addEventListener("DOMContentLoaded", () => {
         const offsetX = screenCenterX - earthCenterX;
         const offsetY = screenCenterY - earthCenterY;
 
-        // set transform-origin to the earth's center (local coords)
         const solarRect = solar.getBoundingClientRect();
         const originX = earthCenterX - solarRect.left;
         const originY = earthCenterY - solarRect.top;
         solar.style.transformOrigin = `${originX}px ${originY}px`;
 
-        // compute scale so earth engulfs screen
+        // compute target scale (same logic as Earth)
         const requiredScaleX = window.innerWidth / rect.width;
         const requiredScaleY = window.innerHeight / rect.height;
         const requiredScale = Math.max(requiredScaleX, requiredScaleY);
-        const extraZoomMultiplier = 3; // stronger zoom
+        const extraZoomMultiplier = 3;
         const targetScale = requiredScale * extraZoomMultiplier;
 
-        // create cloud overlays + middle cover if missing (start off-screen / invisible)
-        function ensureCloudOverlay() {
-            if (document.getElementById('transition_cloud_left')) return;
-
+        // create overlays if missing
+        if (!document.getElementById('transition_cloud_left')) {
             const left = document.createElement('div');
             left.id = 'transition_cloud_left';
             Object.assign(left.style, {
-                position: 'fixed',
-                top: '0',
-                left: '0',
-                width: '55%',
-                height: '100%',
-                backgroundImage: 'url("images/cloud_left.PNG")',
-                backgroundSize: 'cover',
-                backgroundPosition: 'left center',
-                pointerEvents: 'none',
-                opacity: '0',
-                transform: 'translateX(-110%)',
+                position: 'fixed', top: '0', left: '0',
+                width: '55%', height: '100%',
+                backgroundImage: `url("${leftImgUrl}")`,
+                backgroundSize: 'cover', backgroundPosition: 'left center',
+                pointerEvents: 'none', opacity: '0', transform: 'translateX(-110%)',
                 zIndex: 9999
             });
-
             const right = document.createElement('div');
             right.id = 'transition_cloud_right';
             Object.assign(right.style, {
-                position: 'fixed',
-                top: '0',
-                right: '0',
-                width: '55%',
-                height: '100%',
-                backgroundImage: 'url("images/cloud_right.PNG")',
-                backgroundSize: 'cover',
-                backgroundPosition: 'right center',
-                pointerEvents: 'none',
-                opacity: '0',
-                transform: 'translateX(110%)',
+                position: 'fixed', top: '0', right: '0',
+                width: '55%', height: '100%',
+                backgroundImage: `url("${rightImgUrl}")`,
+                backgroundSize: 'cover', backgroundPosition: 'right center',
+                pointerEvents: 'none', opacity: '0', transform: 'translateX(110%)',
                 zIndex: 9999
             });
-
-            // middle cover (full-screen and behind clouds)
             const mid = document.createElement('div');
             mid.id = 'transition_middle_cover';
             Object.assign(mid.style, {
-                position: 'fixed',
-                top: '0',
-                left: '0',
-                transform: 'none',
-                width: '100%',            
-                height: '100%',
-                backgroundColor: '#E3E3E3',
-                pointerEvents: 'none',
-                opacity: '0',
-                zIndex: 9998             // below clouds
+                position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+                backgroundColor: middleCoverColor, pointerEvents: 'none', opacity: '0', zIndex: 9998
             });
-
             document.body.appendChild(mid);
             document.body.appendChild(left);
             document.body.appendChild(right);
         }
 
-        ensureCloudOverlay();
         const cloudL = document.getElementById('transition_cloud_left');
         const cloudR = document.getElementById('transition_cloud_right');
         const midCover = document.getElementById('transition_middle_cover');
 
-        const durationMs = 2000; // full zoom duration
+        // update middle cover color for this planet
+        if (midCover) {
+            midCover.style.backgroundColor = middleCoverColor;
+        }
+
+        const durationMs = 2000;
         const easing = 'cubic-bezier(.22,.9,.32,1)';
-
-        //clouds + middle cover finish moving quicker than the full zoom.
-        // They will complete at ~60% of the zoom so the covers are already at full opacity
         const finishRatio = 0.6;
-        const cloudFadeDuration = Math.round(durationMs * finishRatio); 
-        const cloudTransformDuration = cloudFadeDuration; // move-in matches fade completion
+        const cloudFadeDuration = Math.round(durationMs * finishRatio);
 
-        // ensure starting state (offscreen + invisible)
+        // ensure start state
         cloudL.style.opacity = '0';
         cloudR.style.opacity = '0';
         cloudL.style.transform = 'translateX(-110%)';
         cloudR.style.transform = 'translateX(110%)';
-        if (midCover) {
-            midCover.style.opacity = '0';
-        }
+        cloudL.style.backgroundImage = `url("${leftImgUrl}")`;
+        cloudR.style.backgroundImage = `url("${rightImgUrl}")`;
+        if (midCover) midCover.style.opacity = '0';
 
-        // force reflow so transitions take
+        // force reflow
         void cloudL.offsetWidth;
 
-        // set transitions:
-        // clouds: opacity finishes sooner than the full zoom, transform also finishes sooner
-        cloudL.style.transition = `opacity ${cloudFadeDuration}ms ease, transform ${cloudTransformDuration}ms ${easing}`;
-        cloudR.style.transition = `opacity ${cloudFadeDuration}ms ease, transform ${cloudTransformDuration}ms ${easing}`;
+        // set transitions (clouds finish sooner than full zoom)
+        cloudL.style.transition = `opacity ${cloudFadeDuration}ms ease, transform ${cloudFadeDuration}ms ${easing}`;
+        cloudR.style.transition = `opacity ${cloudFadeDuration}ms ease, transform ${cloudFadeDuration}ms ${easing}`;
+        if (midCover) midCover.style.transition = `opacity ${cloudFadeDuration}ms ease`;
 
-        // middle cover fades in 
-        if (midCover) {
-            midCover.style.transition = `opacity ${cloudFadeDuration}ms ease`;
-        }
-
-        // start animations immediately on click: clouds move inward and fade; middle cover fades in
+        // start clouds/mid immediately on click (move in + fade in)
         cloudL.style.transform = 'translateX(0)';
         cloudR.style.transform = 'translateX(0)';
         cloudL.style.opacity = '1';
         cloudR.style.opacity = '1';
         if (midCover) midCover.style.opacity = '1';
 
-        // zoom (translate + scale) runs full duration so clouds/mid finish earlier
+        // start zoom (full duration)
         solar.style.transition = `transform ${durationMs}ms ${easing}`;
         solar.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${targetScale})`;
 
-        // navigate when zoom ends (fallback timeout)
+        // navigate when zoom ends
         const onEnd = (e) => {
             if (e.propertyName === 'transform') {
                 solar.removeEventListener('transitionend', onEnd);
-                window.location.href = 'Earth.html';
+                if (targetUrl) window.location.href = targetUrl;
             }
         };
         solar.addEventListener('transitionend', onEnd);
         setTimeout(() => {
             solar.removeEventListener('transitionend', onEnd);
-            window.location.href = 'Earth.html';
+            if (targetUrl) window.location.href = targetUrl;
         }, durationMs + 300);
-    });
+    }
+
+    // attach for Earth, Mars, Jupiter
+    const earth = document.querySelector('.Earth');
+    const mars = document.querySelector('.Mars');
+    const jupiter = document.querySelector('.Jupiter');
+
+    if (earth) {
+        earth.style.cursor = 'pointer';
+        earth.addEventListener('click', () => {
+            triggerPlanetZoom(earth, 'images/cloud_left.PNG', 'images/cloud_right.PNG', '#E3E3E3', 'Earth.html');
+        });
+    }
+
+    if (mars) {
+        mars.style.cursor = 'pointer';
+        mars.addEventListener('click', () => {
+            triggerPlanetZoom(mars, 'images/mars_left.PNG', 'images/mars_right.PNG', '#c77569', 'Mars.html');
+        });
+    }
+
+    if (jupiter) {
+        jupiter.style.cursor = 'pointer';
+        jupiter.addEventListener('click', () => {
+            triggerPlanetZoom(jupiter, 'images/jup_left.PNG', 'images/jup_right.PNG', '#dbb274', 'Jupiter.html');
+        });
+    }
+
 });
 

@@ -1,0 +1,57 @@
+body, html {
+    margin: 0;
+    height: 200vh; /* allows scrolling */
+}
+
+#jupiter {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    background-size: cover;
+    z-index: 0; /* put beneath the middle cover */
+}
+
+/* centre cover that matches Jupiter's colour (#dbb274) */
+#middle_cover {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;           /* full-screen */
+    height: 100%;
+    background-color: #dbb274;
+    z-index: 1;            /* sits above jupiter and below clouds (clouds z-index:2) */
+    pointer-events: none;
+    transition: opacity 200ms ease; /* smooth fade when scrolling */
+}
+
+/* ensure clouds remain on top */
+.cloud {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 55%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 2;           /* above middle cover */
+    opacity: 1;
+    transition: opacity 0.2s, transform 0.45s ease;
+}
+
+#cloud_left {
+    background-image: url("images/jup_left.PNG");
+    left: 0;
+    background-position: left center;
+    transform: translateX(0%);
+}
+
+#cloud_right {
+    background-image: url("images/jup_right.PNG");
+    right: 0;
+    background-position: right center;
+    transform: translateX(0%);
+}

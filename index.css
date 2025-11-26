@@ -112,6 +112,12 @@ body {
     top: 60%;
     left: 0;
     transform: translateY(-50%);
+    transition: box-shadow 0.3s ease;
+}
+
+.planet:hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 
+                0 0 30px rgba(100, 200, 255, 0.6);
 }
 
 .Earth {
@@ -123,11 +129,22 @@ body {
 }
 
 .Mars {
-    background: #d14cff; 
+    background-image: url('images/mars.png'); 
+}
+
+.Mars:hover {
+    box-shadow: 0 0 20px #F0991F,
+                0 0 30px #E0901D; 
 }
 
 .Jupiter {
-    background-color: #ffb347;
+    background-image: url('images/jupiter.png');
+    background-size: cover; 
+}
+
+.Jupiter:hover {
+    box-shadow: 0 0 20px #D4AF9B,
+                0 0 30px rgba(255, 179, 71, 0.6);
 }
 
 @keyframes spin {
